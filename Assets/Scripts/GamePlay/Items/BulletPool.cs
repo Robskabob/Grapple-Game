@@ -1,0 +1,1 @@
+﻿public class BulletPool : NetPool<Bullet> { }
