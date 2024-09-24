@@ -1786,6 +1786,12 @@ PrefabInstance:
       propertyPath: Camera
       value: 
       objectReference: {fileID: 154733404}
+    - target: {fileID: 1831556814818978197, guid: 0d547896728ed8e4aa4bb64d2cfdc3c0,
+        type: 3}
+      propertyPath: BindPrefab
+      value: 
+      objectReference: {fileID: 6365816265553223667, guid: e37d37671204b894580b0a3bd7045301,
+        type: 3}
     - target: {fileID: 2200997763318467272, guid: 0d547896728ed8e4aa4bb64d2cfdc3c0,
         type: 3}
       propertyPath: m_AnchorMax.x
