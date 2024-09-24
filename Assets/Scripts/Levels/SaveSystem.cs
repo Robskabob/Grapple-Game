@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -139,11 +140,20 @@ namespace IO
                 return default;
             }
 
-            BinaryFormatter bf = new BinaryFormatter();
-            T data = (T)bf.Deserialize(file);
-            file.Close();
-            Failed = false;
-            return data;
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                T data = (T)bf.Deserialize(file);
+                file.Close();
+                Failed = false;
+                return data;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                Failed = true;
+                return default;
+            }
         }
     }
 }

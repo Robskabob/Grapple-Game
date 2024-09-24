@@ -1011,8 +1011,8 @@ RectTransform:
   m_Father: {fileID: 1761228902137219782}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1140,7 +1140,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 50
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1520,7 +1520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a3eaca60b3c6e0428ae4e6b145a5ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  First: {fileID: 0}
+  First: {fileID: 1761228902343808816}
   Last: {fileID: 0}
   options: {fileID: 1761228901596944677}
 --- !u!1 &1761228900743131152
@@ -2205,7 +2205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab459956eddec984ead9246871620a22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  First: {fileID: 0}
+  First: {fileID: 1761228900524174959}
   Last: {fileID: 0}
   options: {fileID: 1761228901596944677}
 --- !u!1 &1761228901007533984
@@ -2241,7 +2241,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3192,7 +3192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5c32492b49fe040a1964994b6459a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  First: {fileID: 0}
+  First: {fileID: 6638068040487908973}
   Last: {fileID: 0}
   options: {fileID: 1761228901596944677}
 --- !u!114 &1831556814818978197
@@ -5379,7 +5379,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1761228901596944677}
-        m_TargetAssemblyTypeName: 
+        m_TargetAssemblyTypeName: OptionsMenu, Assembly-CSharp
         m_MethodName: Back
         m_Mode: 1
         m_Arguments:

@@ -1,121 +1,103 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static KeySpace.KeyBindMenu;
 
 namespace KeySpace
 {
-	public class KeyBindMenu : MonoBehaviour
+    public partial class KeyBindMenu : UIBehaviour
     {
         public KeyMenu KM;
-        public KeyBind Bind;
+        public Bind Bind;
         public int ID;
         public Text Name;
-        public Toggle toggle;
-        public UnityEngine.UI.Button Key1;
-        public UnityEngine.UI.Button Axis1;
-        public UnityEngine.UI.Button Key2;
-        public UnityEngine.UI.Button Axis2;
-        public Text KeyText1;
-        public Text AxisText1;
-        public Text KeyText2;
-        public Text AxisText2;
-        public Text ThresholdText;
 
-        public bool SelectingK1;
-        public bool SelectingK2;
-        public bool SelectingA1;
-        public bool SelectingA2;
+        public Transform BindsPanel;
+        public Key KeyFab;
+        public Axis AxisFab;
 
-        public int Create(int i, KeyValuePair<KeyBinds, KeyBind> e, KeyMenu km, float YPos)
+        public List<MenuBind> Binds;
+
+        public interface MenuBind
         {
-            transform.position += new Vector3(0, YPos, 0);
+            public bool IsSelected();
+            public bool GetAny();
+            public void OnSelected();
+            public void Rebind();
+        }
+        public abstract class Control<T> : UIBehaviour , MenuBind where T : Bind.bind
+        {
+            public T Ref;
+            public Button BindButton;
+            public Text Text;
+
+            public bool Selecting;
+
+            public abstract void Create(T control);
+            public abstract bool GetAny();
+
+            public bool IsSelected()
+            {
+                return Selecting;
+            }
+
+            public abstract void OnSelected();
+            public abstract void Rebind();
+        }
+
+        public float Create(ref int i, KeyValuePair<KeyBinds, Bind> e, KeyMenu km, float Hight)
+        {
+            name = $"H:{Hight} N:{e.Key}";
             KM = km;
             Bind = e.Value;
             ID = i++;
             Name.text = e.Key.ToString();
 
-            toggle.isOn = Bind.Toggle;
-            toggle.onValueChanged.AddListener(fliptoggle);
+            float HightAdd = 0;
+            Binds = new List<MenuBind>();
+            for (int j = 0; j < Bind.Binds.Length; j++)
+            {
+                Bind.bind b = Bind.Binds[j];
+                HightAdd += 50;
+                
+                if(b is Bind.KeyBind k) 
+                {
+                    Key K = Instantiate(KeyFab, BindsPanel);
+                    (K.transform as RectTransform).anchoredPosition = new Vector2(0, -HightAdd);
+                    K.Create(k);
+                    Binds.Add(K);
+                }
+                else if(b is Bind.AxisBind a)
+                {
+                    Axis A = Instantiate(AxisFab, BindsPanel);
+                    (A.transform as RectTransform).anchoredPosition = new Vector2(0, -HightAdd);
+                    A.Create(a);
+                    Binds.Add(A);
+                }
+                else 
+                {
+                    Assert.IsTrue(false,"control is nither a key or axis, this is imposible");
+                }
+            }
+            (transform as RectTransform).anchoredPosition = new Vector2(0, -Hight);
+            (transform as RectTransform).sizeDelta = new Vector2((transform as RectTransform).sizeDelta.x, HightAdd+50);
 
-            Key1.onClick.AddListener(GetNewKey1);
-            KeyText1.text = Bind.Key1.ToString();
-
-            Key2.onClick.AddListener(GetNewKey2);
-            KeyText2.text = Bind.Key2.ToString();
-
-
-            Axis1.onClick.AddListener(GetNewAxis1);
-            AxisText1.text = Bind.Axis1.ToString();
-
-            Axis2.onClick.AddListener(GetNewAxis2);
-            AxisText2.text = Bind.Axis2.ToString();
-            return i;
+            return HightAdd + 70;
         }
         public void fliptoggle(bool v) 
         {
             Bind.Toggle = v;
         }
-        public void GetNewKey1()
-        {
-            SelectingK1 = true;
-            KeyText1.text = ">>Press Key<<";
-        }
-        public void GetNewKey2()
-        {
-            SelectingK2 = true;
-            KeyText2.text = ">>Press Key<<";
-        }
-        public void GetNewAxis1()
-        {
-            SelectingA1 = true;
-            AxisText1.text = ">>Do Analog?<<";
-        }
-        public void GetNewAxis2()
-        {
-            SelectingA2 = true;
-            AxisText2.text = ">>Do Analog?<<";
-        }
 
         private void Update()
         {
-            if (SelectingK1)
+            foreach (var b in Binds)
             {
-                if (Input.anyKey)
+                if (b.IsSelected() && b.GetAny()) 
                 {
-                    Bind.Key1 = KM.GetKeyPressed();//KM.LastPressed;
-                    KeyText1.text = Bind.Key1.ToString();
-                    SelectingK1 = false;
-                    return;
-                }
-            }
-            if (SelectingK2)
-            {
-                if (Input.anyKey)
-                {
-                    Bind.Key2 = KM.GetKeyPressed();//KM.LastPressed;
-                    KeyText2.text = Bind.Key2.ToString();
-                    SelectingK2 = false;
-                    return;
-                }
-            }
-            if (SelectingA1)
-            {
-                string name = KM.GetAxisPressed();
-                if (name != "none")
-                {
-                    Bind.Axis1 = name;//KM.LastPressed;
-                    AxisText1.text = name;
-                    SelectingA1 = false;
-                }
-            }
-            if (SelectingA2)
-            {
-                string name = KM.GetAxisPressed();
-                if (name != "none")
-                {
-                    Bind.Axis2 = name;//KM.LastPressed;
-                    AxisText2.text = name;
-                    SelectingA2 = false;
+                    b.OnSelected();
                 }
             }
         }

@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using c = KeySpace.Bind.bind;
+using k = KeySpace.Bind.KeyBind;
+using a = KeySpace.Bind.AxisBind;
+using UnityEngine.Assertions;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -12,25 +17,42 @@ namespace KeySpace
 	[Serializable]
     public struct keydata
     {
-        public KeyCode Key1;
-        public KeyCode Key2;
-        public string Axis1;
-        public string Axis2;
-        public float Threshold;
-        public float Mult;
-        public bool Toggle;
+        public control[] Control;
         public bool Gameplay;
 
-        public keydata(KeyCode key1, KeyCode key2, string axis1, string axis2,float mult, float threshold, bool toggle, bool gameplay)
+        public keydata(control[] C, bool gameplay)
         {
-            Key1 = key1;
-            Key2 = key2;
-            Axis1 = axis1;
-            Axis2 = axis2;
-            Mult = mult;
-            Threshold = threshold;
-            Toggle = toggle;
+            Control = C;
             Gameplay = gameplay;
+        }
+
+        public interface control{ }
+
+        [Serializable]
+        public struct key : control
+        {
+            public KeyCode Key;
+            public bool Toggle;
+            public key(KeyCode key, bool toggle = false) 
+            {
+                Key = key;
+                Toggle = toggle;
+            }
+        }
+
+        [Serializable]
+        public struct axis : control
+        {
+            public string Axis;
+            public float Threshold;
+            public float Mult;
+
+            public axis(string axis, float mult = 1, float threshold = .5f) 
+            {
+                Axis = axis;
+                Mult = mult;
+                Threshold = threshold;
+            }
         }
     }
     public class KeySystem : MonoBehaviour
@@ -64,40 +86,40 @@ namespace KeySpace
         public void ResetKeys() 
         {
             KeyBindsInstance.Clear();
-            KeyBindsInstance.Add(KeyBinds.LookUp, new KeyBind(KeyCode.UpArrow, KeyCode.None, "Mouse Y", "Right Y"));
-            KeyBindsInstance.Add(KeyBinds.LookLeft, new KeyBind(KeyCode.LeftArrow, KeyCode.None, "Mouse X", "Right X", -1));
-            KeyBindsInstance.Add(KeyBinds.LookDown, new KeyBind(KeyCode.DownArrow, KeyCode.None, "Mouse Y", "Right Y", -1));
-            KeyBindsInstance.Add(KeyBinds.LookRight, new KeyBind(KeyCode.RightArrow, KeyCode.None, "Mouse X", "Right X"));
+            KeyBindsInstance.Add(KeyBinds.LookUp, new Bind(new c[] { new k(KeyCode.UpArrow), new a("Mouse Y"), new a("Right Y", -1) }));
+            KeyBindsInstance.Add(KeyBinds.LookLeft, new Bind(new c[] { new k(KeyCode.LeftArrow), new a("Mouse X",-1), new a("Right X", -1) }));
+            KeyBindsInstance.Add(KeyBinds.LookDown, new Bind(new c[] { new k(KeyCode.DownArrow), new a("Mouse Y",-1), new a("Right Y") }));
+            KeyBindsInstance.Add(KeyBinds.LookRight, new Bind(new c[] { new k(KeyCode.RightArrow), new a("Mouse X"), new a("Right X") }));
 
-            KeyBindsInstance.Add(KeyBinds.Forward, new KeyBind(KeyCode.W, KeyCode.None, "", "Left Y",-1));
-            KeyBindsInstance.Add(KeyBinds.Left, new KeyBind(KeyCode.A, KeyCode.None, "", "Left X", -1));
-            KeyBindsInstance.Add(KeyBinds.Backward, new KeyBind(KeyCode.S, KeyCode.None, "", "Left Y"));
-            KeyBindsInstance.Add(KeyBinds.Right, new KeyBind(KeyCode.D, KeyCode.None, "", "Left X"));
+            KeyBindsInstance.Add(KeyBinds.Forward, new Bind(new c[] { new k(KeyCode.W), new a("Left Y", -1) }));
+            KeyBindsInstance.Add(KeyBinds.Left, new Bind(new c[] { new k(KeyCode.A), new a("Left X", -1) }));
+            KeyBindsInstance.Add(KeyBinds.Backward, new Bind(new c[] { new k(KeyCode.S), new a("Left Y") }));
+            KeyBindsInstance.Add(KeyBinds.Right, new Bind(new c[] { new k(KeyCode.D), new a("Left X") }));
 
-            KeyBindsInstance.Add(KeyBinds.Jump, new KeyBind(KeyCode.Space, KeyCode.None));
-            KeyBindsInstance.Add(KeyBinds.Sprint, new KeyBind(KeyCode.LeftShift, KeyCode.None));
-            KeyBindsInstance.Add(KeyBinds.Crouch, new KeyBind(KeyCode.LeftControl, KeyCode.None));
+            KeyBindsInstance.Add(KeyBinds.Jump, new Bind(new c[] { new k(KeyCode.Space), new k(KeyCode.JoystickButton0) }));
+            KeyBindsInstance.Add(KeyBinds.Sprint, new Bind(new c[] { new k(KeyCode.LeftShift), new k(KeyCode.JoystickButton9) }));
+            KeyBindsInstance.Add(KeyBinds.Crouch, new Bind(new c[] { new k(KeyCode.LeftControl), new k(KeyCode.JoystickButton1) }));
 
-            KeyBindsInstance.Add(KeyBinds.ShootLeft, new KeyBind(KeyCode.Mouse0, KeyCode.None, "", "LT"));
-            KeyBindsInstance.Add(KeyBinds.ShootRight, new KeyBind(KeyCode.Mouse1, KeyCode.None, "", "RT"));
-            KeyBindsInstance.Add(KeyBinds.ShootMid, new KeyBind(KeyCode.Mouse2, KeyCode.None));
-            KeyBindsInstance.Add(KeyBinds.UseLeft, new KeyBind(KeyCode.Q, KeyCode.JoystickButton4, "", "LB"));
-            KeyBindsInstance.Add(KeyBinds.UseRight, new KeyBind(KeyCode.E, KeyCode.JoystickButton5, "", "RB"));
-            KeyBindsInstance.Add(KeyBinds.DropLeft, new KeyBind(KeyCode.Z, KeyCode.None, "", "Dpad Horizontal",-1));
-            KeyBindsInstance.Add(KeyBinds.DropRight, new KeyBind(KeyCode.X, KeyCode.None, "", "Dpad Horizontal"));
+            KeyBindsInstance.Add(KeyBinds.ShootLeft, new Bind(new c[] { new k(KeyCode.Mouse0), new a("LT") }));
+            KeyBindsInstance.Add(KeyBinds.ShootRight, new Bind(new c[] { new k(KeyCode.Mouse1), new a("RT") }));
+            KeyBindsInstance.Add(KeyBinds.ShootMid, new Bind(new c[] { new k(KeyCode.Mouse2) }));
+            KeyBindsInstance.Add(KeyBinds.UseLeft, new Bind(new c[] { new k(KeyCode.Q), new k(KeyCode.JoystickButton4), new a("LB") }));
+            KeyBindsInstance.Add(KeyBinds.UseRight, new Bind(new c[] { new k(KeyCode.E), new k(KeyCode.JoystickButton5), new a("RB") }));
+            KeyBindsInstance.Add(KeyBinds.DropLeft, new Bind(new c[] { new k(KeyCode.Z), new a("Dpad Horizontal", -1) }));
+            KeyBindsInstance.Add(KeyBinds.DropRight, new Bind(new c[] { new k(KeyCode.X), new a("Dpad Horizontal") }));
 
-            KeyBindsInstance.Add(KeyBinds.UseAbility, new KeyBind(KeyCode.V, KeyCode.None));
-            KeyBindsInstance.Add(KeyBinds.DropAbility, new KeyBind(KeyCode.C, KeyCode.None));
+            KeyBindsInstance.Add(KeyBinds.UseAbility, new Bind(new c[] { new k(KeyCode.V), new a("Dpad Vertical") }));
+            KeyBindsInstance.Add(KeyBinds.DropAbility, new Bind(new c[] { new k(KeyCode.C), new a("Dpad Vertical", -1) }));
 
-            KeyBindsInstance.Add(KeyBinds.Reset, new KeyBind(KeyCode.R, KeyCode.None));
-            KeyBindsInstance.Add(KeyBinds.MainMenu, new KeyBind(KeyCode.Escape, KeyCode.None, "", "",1,.5f, false));
+            KeyBindsInstance.Add(KeyBinds.Reset, new Bind(new c[] { new k(KeyCode.R), new k(KeyCode.JoystickButton6) }));
+            KeyBindsInstance.Add(KeyBinds.MainMenu, new Bind(new c[] { new k(KeyCode.Escape), new k(KeyCode.JoystickButton7) }, false));
         }
 
         private KeySystem()
         {
         }
 
-        public Dictionary<KeyBinds, KeyBind> KeyBindsInstance = new Dictionary<KeyBinds, KeyBind>();
+        public Dictionary<KeyBinds, Bind> KeyBindsInstance = new Dictionary<KeyBinds, Bind>();
         /// <summary>
         /// Returns the value of the key bind
         /// </summary>
@@ -116,16 +138,6 @@ namespace KeySpace
         {
             return instance.KeyBindsInstance[K].Down;
         }
-        //unneeded
-        ///// <summary>
-        ///// returns when the key is being held down
-        ///// </summary>
-        ///// <param name="K"></param>
-        ///// <returns></returns>
-        //public static bool GetBindHold(KeyBinds K)
-        //{
-        //    return instance.KeyBindsInstance[K].Hold;
-        //}
         public static float GetBindValue(KeyBinds K) 
         {
             return instance.KeyBindsInstance[K].GetValue;
@@ -149,13 +161,41 @@ namespace KeySpace
 
         public void Save()
         {
-			List<keydata> data =/*//*/ new List<keydata>(KeyBindsInstance.Count);//*/ new keydata[KeyBindsInstance.Count];
-            string str = "Ver: 0.0.1.3\n";
+			List<keydata> data = new List<keydata>(KeyBindsInstance.Count);
+            string str = "Ver: 0.0.2.3\n";
             int i = 0;
-            foreach (KeyValuePair<KeyBinds, KeyBind> e in KeyBindsInstance)
+            foreach (KeyValuePair<KeyBinds, Bind> e in KeyBindsInstance)
             {
-                str += $"{e.Key}:{e.Value.Key1},{e.Value.Key2},{e.Value.Axis1},{e.Value.Axis2},{e.Value.Mult},{e.Value.Threshold},{e.Value.Toggle},{e.Value.GamePlay} \n";
-                data.Add( new keydata(e.Value.Key1, e.Value.Key2, e.Value.Axis1, e.Value.Axis2,e.Value.Mult, e.Value.Threshold, e.Value.Toggle, e.Value.GamePlay));
+                str += $"{(char)e.Key}:{(e.Value.Toggle ? 'T' : 'F')},{(e.Value.GamePlay ? 'T' : 'F')}|";
+
+                keydata.control[] binds = new keydata.control[e.Value.Binds.Length];
+
+                for (int j = 0; j < e.Value.Binds.Length; j++)
+                {
+                    Bind.bind b = e.Value.Binds[j];
+                    if (b is Bind.KeyBind k)
+                    {
+                        binds[j] = new keydata.key(k.Key,k.Toggle);
+                        str += $"k:{(byte)k.Key},{(k.Toggle ? 'T' : 'F')};";
+                    }
+                    else if (b is Bind.AxisBind a)
+                    {
+                        binds[j] = new keydata.axis(a.Axis,a.Mult,a.Threshold);
+                        for (int x = 0; x < Axis.names.Length; x++)
+                        {
+                            if(Axis.names[x] == a.Axis)
+                                str += $"a:{(byte)x},{a.Mult},{a.Threshold};";
+                        }
+                    }
+                    else
+                    {
+                        Assert.IsTrue(false, $"control is nither a key or axis, this is imposible {b}");
+                    }
+                }
+                str += "\n";
+
+
+                data.Add( new keydata(binds, e.Value.GamePlay));
                 i++;
             }
 
@@ -173,15 +213,19 @@ namespace KeySpace
             }
             for (int i = 0; i < data.Count; i++)
             {
-                KeyBindsInstance.Add((KeyBinds)i, new KeyBind(data[i]));
+                KeyBindsInstance.Add((KeyBinds)i, new Bind(data[i]));
             }
+            Assert.AreEqual(KeyBindsInstance.Count, 22,$"Incorrect numbre of keybinds {KeyBindsInstance.Count} should be 22");
+            KeyBinds k = (KeyBinds)UnityEngine.Random.Range(0, 22);
+            Assert.IsTrue(KeyBindsInstance[k].Binds.Length > 0,$"KeyBind {k} has no Binds {KeyBindsInstance[k].Binds.Length}");
         }
 
         public void Update() 
         {
-            foreach (KeyValuePair<KeyBinds, KeyBind> e in KeyBindsInstance)
+            //make event based
+            foreach (KeyValuePair<KeyBinds, Bind> e in KeyBindsInstance)
             {
-                if (isPaused && e.Value.GamePlay)//posible ineficant 
+                if (isPaused && e.Value.GamePlay)
                 {
                     e.Value.isEnabled = false;
                 }
@@ -194,39 +238,42 @@ namespace KeySpace
         }
     }
 
-    public class KeyBind
+    public class Bind
     {
-        public KeyBind(KeyCode k1, KeyCode k2, string a1 = "", string a2 = "", float m = 1, float t =.5f, bool gamePlay = true)
+        public Bind(bind[] binds, bool gamePlay = true)
         {
-            Key1 = k1;
-            Key2 = k2;
-            Axis1 = a1;
-            Axis2 = a2;
-            Mult = m;
-            Threshold = t;
-            GamePlay = gamePlay; 
-            isEnabled = true; 
+            Binds = binds;
+            GamePlay = gamePlay;
+            isEnabled = true;
         }
 
-        public KeyBind(keydata keydata)
+        public Bind(keydata keydata)
         {
-            Key1 = keydata.Key1;
-            Key2 = keydata.Key2;
-            Axis1 = keydata.Axis1;
-            Axis2 = keydata.Axis2;
-            Mult = keydata.Mult;
-            Threshold = keydata.Threshold;
-            Toggle = keydata.Toggle;
+            bind[] binds = new bind[keydata.Control.Length];
+
+            for (int i = 0; i < binds.Length; i++)
+            {
+                keydata.control b = keydata.Control[i];
+                if (b is keydata.key k)
+                {
+                    binds[i] = new k(k.Key, k.Toggle);
+                }
+                else if (b is keydata.axis a)
+                {
+                    binds[i] = new a(a.Axis, a.Mult, a.Threshold);
+                }
+                else
+                {
+                    Assert.IsTrue(false, $"control is nither a key or axis, this is imposible {b}");
+                }
+            }
+
+            Binds = binds;
             GamePlay = keydata.Gameplay;
             isEnabled = true;
         }
 
-        public KeyCode Key1;
-        public KeyCode Key2;
-        public string Axis1;
-        public string Axis2;
-        public float Threshold;
-        public float Mult;
+        public bind[] Binds;
         private bool _State; 
         public bool State {
             get
@@ -240,25 +287,28 @@ namespace KeySpace
         public bool Hold { get
             {
                 if (isEnabled)
-                    return Input.GetKey(Key1) || Input.GetKey(Key2) || GetAxis;
+                {
+                    foreach (var C in Binds)
+                    {
+                        if (C.GetBool())
+                            return true;
+                    }
+                    return false;
+                }
                 else
                     return false;
             } }
-        public bool Down { get 
+        public bool Down { get
             {
                 if (isEnabled)
-                    return Input.GetKeyDown(Key1) || Input.GetKeyDown(Key2);
-                else
+                {
+                    foreach (var C in Binds)
+                    {
+                        if (C.GetDown())
+                            return true;
+                    }
                     return false;
-            } }
-
-        public bool GetAxis
-        {
-            get
-            {
-                if (isEnabled)
-                    return (Axis1 != "" && Input.GetAxis(Axis1) * Mult > Threshold) || 
-                        (Axis2 != "" && Input.GetAxis(Axis2) * Mult > Threshold);
+                }
                 else
                     return false;
             }
@@ -267,12 +317,20 @@ namespace KeySpace
         {
             get
             {
-                if (isEnabled)
-                    return (Axis1 == "" ? 0 : Input.GetAxis(Axis1) * Mult) + (Axis2 == "" ? 0 : Input.GetAxis(Axis2) * Mult) + (Input.GetKey(Key1) ? 1 : 0) + (Input.GetKey(Key2) ? 1 : 0);
+                if (isEnabled) 
+                {
+                    float v = 0;
+                    foreach (var C in Binds)
+                    {
+                        v += C.GetValue();
+                    }
+                    return v;
+                }
                 else
                     return 0;
             }
         }
+        
         public bool Toggle;
 
         public bool GamePlay { get; internal set; }
@@ -289,6 +347,106 @@ namespace KeySpace
             else 
             {
                 State = Hold;
+            }
+        }
+
+
+
+        public interface bind
+        {
+            public float GetValue();
+            public bool GetBool();
+            public bool GetDown();
+            public string GetName();
+        }
+
+        public class KeyBind : bind
+        {
+            public KeyCode Key;
+            public bool Toggle;
+            public static Dictionary<KeyCode, string> NameMap = new Dictionary<KeyCode, string>() {
+            {KeyCode.JoystickButton0,"A / ╳" },
+            {KeyCode.JoystickButton1,"B / ◯" },
+            {KeyCode.JoystickButton2,"X / □" },
+            {KeyCode.JoystickButton3,"Y / △" },
+            {KeyCode.JoystickButton4,"LB" },
+            {KeyCode.JoystickButton5,"RB" },
+            {KeyCode.JoystickButton6,"View" },
+            {KeyCode.JoystickButton7,"Menu ≡" },
+            {KeyCode.JoystickButton8,"L stick" },
+            {KeyCode.JoystickButton9,"R stick" },
+            //{KeyCode.JoystickButton10,"" },
+            //{KeyCode.JoystickButton11,"" },
+            {KeyCode.JoystickButton12,"Home" },
+        };
+            public KeyBind(KeyCode key, bool toggle = false)
+            {
+                Key = key;
+                Toggle = toggle;
+            }
+            public float GetValue()
+            {
+                return Input.GetKey(Key) ? 1 : 0;
+            }
+            public bool GetBool()
+            {
+                return Input.GetKey(Key);
+            }
+
+            public bool GetDown()
+            {
+                return Input.GetKeyDown(Key);
+            }
+
+            public string GetName()
+            {
+                if (!NameMap.TryGetValue(Key, out string label))
+                    label = Key.ToString();
+                return label;
+            }
+        }
+
+        public class AxisBind : bind
+        {
+            public string Axis;
+            public float Threshold;
+            public float Mult;
+
+            public AxisBind(string axis, float mult = 1, float threshold = .5f)
+            {
+                Axis = axis;
+                Mult = mult;
+                Threshold = threshold;
+
+                down = false;
+            }
+
+            private bool down;
+
+            public float GetValue()
+            {
+                return Input.GetAxis(Axis) * Mult;
+            }
+            public bool GetBool()
+            {
+                return Input.GetAxis(Axis) * Mult > Threshold;
+            }
+
+            public bool GetDown()
+            {
+                bool now = GetBool();
+                if (!down && now)
+                {
+                    down = now;
+                    return true;
+                }
+                down = now;
+                return false;
+            }
+
+            public string GetName()
+            {
+                return Axis;
             }
         }
     }
@@ -312,11 +470,11 @@ namespace KeySpace
         Left,
         Backward,
         Right,
-        //Move Modifiers
+        ///Move Modifiers
         Jump,
         Sprint,
         Crouch,
-        //Abilities
+        ///Arms
         ShootLeft,
         ShootRight,
         ShootMid,
@@ -324,10 +482,10 @@ namespace KeySpace
         UseRight,
         DropLeft,
         DropRight,
-
+        ///Abilities
         UseAbility,
         DropAbility,
-
+        ///Utility
         Reset,
         MainMenu,
     }
@@ -341,80 +499,99 @@ namespace KeySpace
         private void OnEnable()
         {
             KeySystem K = (KeySystem)target;
-            //int n = L.map.Objects.Count;
-            //for (int i = 0; i < L.map.Objects.Count; i++)
-            //{
-            //    n += L.map.Objects[i].BoolNum();
-            //}
-            //boolObs = new bool[n];
         }
+        bool autoUpdate;
+        int rate;
+        int count;
         bool keybool;
         bool[] keybools = new bool[0];
+        bool[][] keybindbools = new bool[0][];
+
+
+        public override bool RequiresConstantRepaint()
+        {
+            return autoUpdate;
+        }
+
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
 
             KeySystem K = (KeySystem)target;
+
+            autoUpdate = EditorGUILayout.Toggle("Auto Update Inspector",autoUpdate);
+            rate = EditorGUILayout.IntField("Rate",rate);
+
+            EditorGUILayout.Vector2Field("Look", KeySystem.GetLook());
+            EditorGUILayout.Vector3Field("Move", KeySystem.GetMove());
+
+            if (GUILayout.Button("Save"))
+                K.Save();
+
             keybool = EditorGUILayout.Foldout(keybool,"KeyBinds");
             if (keybool)
             {
+                EditorGUI.indentLevel++;
                 if (keybools.Length != K.KeyBindsInstance.Count)
                     keybools = new bool[K.KeyBindsInstance.Count];
+                if (keybindbools.Length != K.KeyBindsInstance.Count) 
+                {
+                    keybindbools = new bool[K.KeyBindsInstance.Count][];
+                    for (int j = 0; j < keybindbools.Length; j++)
+                    {
+                        keybindbools[j] = new bool[0];
+                    }
+                }
                 int i = 0;
-                foreach (KeyValuePair<KeyBinds, KeyBind> k in K.KeyBindsInstance)
+                foreach (KeyValuePair<KeyBinds, Bind> k in K.KeyBindsInstance)
                 {
                     keybools[i] = EditorGUILayout.Foldout(keybools[i],k.Key.ToString());
-                    if (keybools[i]) 
+                    if (keybools[i])
                     {
-                        //EditorGUILayout.EnumPopup("Binding", );
-                        KeyBind b = k.Value;
-                        EditorGUILayout.EnumPopup("Key", b.Key1);
-                        EditorGUILayout.EnumPopup("Key", b.Key2);
-                        EditorGUILayout.TextField("Axis", b.Axis1);
-                        EditorGUILayout.TextField("Axis", b.Axis2);
-                        EditorGUILayout.FloatField("Threshold", b.Threshold);
-                        EditorGUILayout.Toggle("Toggle", b.Toggle);
-                        EditorGUILayout.Toggle("Game Play", b.GamePlay);
-                        EditorGUILayout.FloatField(KeySystem.GetBindValue(k.Key));
+                        EditorGUI.indentLevel++;
+                        Bind b = k.Value;
+                        b.Toggle = EditorGUILayout.Toggle("Toggle", b.Toggle);
+                        b.GamePlay = EditorGUILayout.Toggle("Game Play", b.GamePlay);
+                        EditorGUILayout.FloatField("Value", KeySystem.GetBindValue(k.Key));
+                        EditorGUILayout.FloatField("Value",b.GetValue);
+                        EditorGUILayout.Toggle("State", b.State);
+                        EditorGUILayout.Toggle("Hold", b.Hold);
+                        EditorGUILayout.Toggle("Down", b.Down);
+
+
+                        if (keybindbools[i].Length != b.Binds.Length)
+                            keybindbools[i] = new bool[b.Binds.Length];
+                        for (int j = 0; j < b.Binds.Length; j++)
+                        {
+                            Bind.bind c = b.Binds[j];
+                            keybindbools[i][j] = EditorGUILayout.Foldout(keybindbools[i][j], c.GetName());
+                            if (keybindbools[i][j])
+                            {
+                                EditorGUI.indentLevel++;
+                                if (c is Bind.KeyBind kb)
+                                {
+                                    kb.Key = (KeyCode)EditorGUILayout.EnumPopup("Key", kb.Key);
+                                    kb.Toggle = EditorGUILayout.Toggle("Toggle", kb.Toggle);
+                                }
+                                else if (c is Bind.AxisBind ab)
+                                {
+                                    ab.Axis = EditorGUILayout.TextField("Axis", ab.Axis);
+                                    EditorGUILayout.LabelField("Axis Name", ab.GetName());
+                                    ab.Mult = EditorGUILayout.FloatField("Mult", ab.Mult);
+                                    ab.Threshold = EditorGUILayout.FloatField("Threshold", ab.Threshold);
+                                }
+                                EditorGUILayout.FloatField("Value",c.GetValue());
+                                EditorGUILayout.Toggle("Bool",c.GetBool());
+                                EditorGUILayout.Toggle("Down",c.GetDown());
+                                EditorGUI.indentLevel--;
+                            }
+                        }
+                        EditorGUI.indentLevel--;
                     }
                     i++;
                 }
+                EditorGUI.indentLevel--;
             }
-            //if (GUILayout.Button("Save Level")) { PrefabList.instance.Repopulate(); L.Save(); }
-            //if (GUILayout.Button("Load File")) L.LoadFile(L.ld.Name);
-            //if (Application.isPlaying && GUILayout.Button("Load Level")) L.Load();
-            //Objects = EditorGUILayout.Foldout(Objects, "Map Objects");
-            //EditorGUI.indentLevel++;
-            //if (Objects && L.map.Objects != null)
-            //{
-            //    List<mapdata.IObject> Objects = L.map.Objects;
-            //    int boolIndex = 0;
-            //    int n = Objects.Count;
-            //    for (int i = 0; i < Objects.Count; i++)
-            //    {
-            //        n += Objects[i].BoolNum();
-            //    }
-            //    if (boolObs == null || n != boolObs.Length)
-            //    {
-
-            //        boolObs = new bool[n];
-            //    }
-            //    for (int i = 0; i < Objects.Count; i++)
-            //    {
-            //        boolObs[boolIndex] = EditorGUILayout.Foldout(boolObs[boolIndex], Objects[i].Name());
-            //        if (boolObs[boolIndex++])
-            //        {
-            //            EditorGUI.indentLevel++;
-            //            Objects[i].Draw(ref boolObs, ref boolIndex);
-            //            EditorGUI.indentLevel--;
-            //        }
-            //        else
-            //        {
-            //            boolIndex += Objects[i].BoolNum();
-            //        }
-            //    }
-            //}
-            //EditorGUI.indentLevel--;
         }
     }
     #endif

@@ -10,7 +10,7 @@ public abstract class Menu : UIBehaviour
     public Menu Last;
     protected override void Start()
     {
-        UnityEngine.Assertions.Assert.IsNotNull(First);
+        UnityEngine.Assertions.Assert.IsNotNull(First,$"First is NULL {name} dosn't have a default selected UI object Controllers will not be able to use this menu");
     }
     protected virtual void Update()
     {
