@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SFB;
 
 //change so that is just gives a level to another menu
 public class LevelSelect : Menu
@@ -14,6 +15,21 @@ public class LevelSelect : Menu
     {
         main.allOff();
         play.gameObject.SetActive(true);
+    }
+    public void doOpenFolder() 
+    {
+        string str = "";
+        string[] strs = StandaloneFileBrowser.OpenFolderPanel("Open Folder", Application.persistentDataPath, true);
+        for (int i = 0; i < strs.Length; i++)
+        {
+            str += $"{i}|{strs[i]} \n";
+        }
+        strs = StandaloneFileBrowser.OpenFilePanel("Open Folder", Application.persistentDataPath,"dat", true);
+        for (int i = 0; i < strs.Length; i++)
+        {
+            str += $"{i}|{strs[i]} \n";
+        }
+        Debug.Log(str);
     }
     public void doLevel1()
     {

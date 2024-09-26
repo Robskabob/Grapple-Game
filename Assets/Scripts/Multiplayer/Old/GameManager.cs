@@ -33,15 +33,9 @@ public class GameManager : NetworkManager
     public MainMenu MainMenu;
     public Level Level;
 
+    
     private void OnEnable()
     {
-        Debug.Log("Logs Function");
-		NetworkServer.RegisterHandler<ReplacePlayerMessager>(OnReplacePlayer);
-        NetworkServer.RegisterHandler<NewPlayerMessager>(OnCreateRoomPlayer);
-        NetworkClient.RegisterPrefab(GamePlayerPrefab.gameObject, SpawnDelegate, UnspawnHandler);
-        NetworkClient.RegisterPrefab(LocalPlayerPrefab.gameObject, SpawnNetPlayerDelegate, UnspawnHandler);
-        //GM = this;
-        
         string LevelPath = Application.persistentDataPath + "/SaveData/";
         string TempPath = Application.persistentDataPath + "/temp/Levels.zip";
         string Download = "https://drive.google.com/uc?export=download&id=1SEnsbiKazx4Ikz9GCFZdiDncpyKkOvzV";
@@ -55,25 +49,22 @@ public class GameManager : NetworkManager
             webClient.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
             webClient.DownloadFile(new Uri(Download), TempPath);
 
-            //using (var client = new HttpClient())
-            //{
-            //    using (var s = client.GetStreamAsync(Download))
-            //    {
-            //        using (var fs = new FileStream(TempPath, FileMode.OpenOrCreate))
-            //        {
-            //            s.Result.CopyTo(fs);
-            //        }
-            //    }
-            //}
-
             using (var zipFile = new ZipFile(TempPath))
             {
                 zipFile.ExtractAll(LevelPath);
             }
         }
-        //string[] paths = Directory.GetDirectories(Application.persistentDataPath + "/SaveData/Levels");
+    //}public override void OnStartServer() { base.OnStartServer();
 
+        Debug.Log("Logs Function");
+        NetworkServer.RegisterHandler<ReplacePlayerMessager>(OnReplacePlayer);
+        NetworkServer.RegisterHandler<NewPlayerMessager>(OnCreateRoomPlayer);
+        NetworkClient.RegisterPrefab(GamePlayerPrefab.gameObject, SpawnDelegate, UnspawnHandler);
+        NetworkClient.RegisterPrefab(LocalPlayerPrefab.gameObject, SpawnNetPlayerDelegate, UnspawnHandler);
+        Debug.Log("Handlers Registered");
+        //GM = this;
     }
+
 
     GameObject SpawnDelegate(SpawnMessage msg)
     {
@@ -177,7 +168,9 @@ public class GameManager : NetworkManager
         NetPlayer.Name = PM.Name;
         NetPlayer.Team = PM.Team;
         RoomPlayer Player = Instantiate(roomPlayerPrefab, transform);
-            Debug.Log(NetworkServer.AddPlayerForConnection(conn, NetPlayer.gameObject));
+        bool addP = NetworkServer.AddPlayerForConnection(conn, NetPlayer.gameObject);
+        Debug.Log($"Player added {addP}");
+        
         NetworkServer.Spawn(Player.gameObject, conn);
         NetPlayer.SetUp(this, Player);
         Player.name = "Dis hapenin " + UnityEngine.Random.Range(1,99);
@@ -195,13 +188,6 @@ public class GameManager : NetworkManager
         //Players.Add(Player.netId, Player);
 
         //Debug.Log("Create " + PM.Name);
-    }
-
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
-
-        //NetworkServer.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
     }
 }
 

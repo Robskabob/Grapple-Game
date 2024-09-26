@@ -49,6 +49,9 @@ public class MainMenu : Menu
     public Controls controls;
     public Audio audiosettings;
     public Video video;
+
+    public List<Menu> Menus;
+
     public Transform Light;
     public Transform Camera;
     public EventSystem ES;
@@ -65,9 +68,14 @@ public class MainMenu : Menu
         video.gameObject.SetActive(false);
         multi.gameObject.SetActive(false);
         gameObject.SetActive(false);
+
+        for (int i = 0; i < Menus.Count; i++)
+        {
+            Menus[i].gameObject.SetActive(false);
+        }
     }
 
-	protected void Reset()
+	new protected void Reset()
 	{
         gameObject.SetActive(true);
         allOff();
