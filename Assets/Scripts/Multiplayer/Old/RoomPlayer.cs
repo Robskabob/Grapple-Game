@@ -234,7 +234,7 @@ public class RoomPlayer : PlayerRepresentation
     }
     public void OnEditName(string name)
     {
-        Debug.Log("OnEditName");
+        Debug.Log($"OnEditName \n{Owner} | {Owner?.name}");
         if (name != Name)
         {
             Debug.Log("RequestNameChange");

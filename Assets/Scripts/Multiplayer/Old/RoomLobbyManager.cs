@@ -184,7 +184,8 @@ public class RoomLobbyManager : MonoBehaviour , LevelSelectUI.LevelRequester
         GenerateLobby();
         AnyPlayerJoin(player);
         player.RequestUpdateState();
-        LocalPlayer.OnEditName(PlayerPrefs.GetString("Name",""));
+        //removed bc null refrance to Owner, probably not set yet
+        //LocalPlayer.OnEditName(PlayerPrefs.GetString("Name",""));
         //LocalPlayer.JoinTeam(-1);
 
         Athu();

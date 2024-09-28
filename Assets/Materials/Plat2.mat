@@ -51,7 +51,7 @@ Material:
     - Vector1_8BECFF2A: 0
     m_Colors:
     - Color_A77CA8CA: {r: 0.7838177, g: 0.33785248, b: 0, a: 0}
-    - Color_C44B0AC5: {r: 0, g: 0, b: 0, a: 0}
+    - Color_C44B0AC5: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 0}
     - Color_F16F214B: {r: 0, g: 16, b: 11.16863, a: 0}
-    - _Base_Color: {r: 0, g: 6.964403, b: 0.6648016, a: 0}
+    - _Base_Color: {r: 0.9137061, g: 5.2164745, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -57,10 +57,10 @@ public class GameManager : NetworkManager
     //}public override void OnStartServer() { base.OnStartServer();
 
         Debug.Log("Logs Function");
-        NetworkServer.RegisterHandler<ReplacePlayerMessager>(OnReplacePlayer);
-        NetworkServer.RegisterHandler<NewPlayerMessager>(OnCreateRoomPlayer);
         NetworkClient.RegisterPrefab(GamePlayerPrefab.gameObject, SpawnDelegate, UnspawnHandler);
         NetworkClient.RegisterPrefab(LocalPlayerPrefab.gameObject, SpawnNetPlayerDelegate, UnspawnHandler);
+        NetworkServer.RegisterHandler<ReplacePlayerMessager>(OnReplacePlayer);
+        NetworkServer.RegisterHandler<NewPlayerMessager>(OnCreateRoomPlayer);
         Debug.Log("Handlers Registered");
         //GM = this;
     }
@@ -82,13 +82,20 @@ public class GameManager : NetworkManager
     }
     GameObject SpawnNetPlayerDelegate(SpawnMessage msg)
     {
-        Debug.Log("Spawn " + msg.netId);
         NetworkPlayer NP = Instantiate(LocalPlayerPrefab, msg.position,msg.rotation);
+        Debug.Log("Spawn " + msg.netId +" | "+NP.netIdentity.assetId);
         Players.Add(msg.netId, NP);
         Debug.Log("RoomPlayers: " + FindObjectOfType<RoomLobbyManager>().Players.Count);
         NP.ID = msg.netId;
         NP.local = msg.isLocalPlayer;
-        Debug.Log("payLoad " + msg.payload.Array.Length + " | " + msg.payload.Array.ToString());
+        string str = "";
+        string strc = "";
+        for (int i = 0; i < msg.payload.Array.Length; i++)
+        {
+            str += msg.payload.Array[i]+".";
+            strc += ((char)msg.payload.Array[i]);
+        }
+        Debug.Log("payLoad " + msg.payload.Array.Length + " | " + str +" | " + strc);
         //NP.SetUp(null,FindObjectOfType<RoomLobbyManager>().Players.Find((x) => x.PlayerNetID == (msg.netId)));
         return NP.gameObject;
     }
@@ -178,7 +185,8 @@ public class GameManager : NetworkManager
             LocalPlayer = NetPlayer;
         Debug.Log(NetPlayer);
         Debug.Log(Player);
-        //Players.Add(NetPlayer.netId, NetPlayer);
+        if(NetPlayer.isClientOnly)
+            Players.Add(NetPlayer.netId, NetPlayer);
 
         //Player.Team = PM.Team;
         //Player.TargetColor = PM.Color;
