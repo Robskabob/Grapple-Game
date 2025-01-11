@@ -51,6 +51,8 @@ public class NetworkPlayer : NetworkBehaviour
         representation.Owner = this;
         representation.PlayerNetID = netId;
         representation.LocalPlayer = isLocalPlayer;
+
+        representation.OnStartLocalPlayerRepresentation();
     }
     private void Start()
     {

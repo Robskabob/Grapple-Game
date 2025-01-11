@@ -170,23 +170,25 @@ public class GameManager : NetworkManager
     }
     public void OnCreateRoomPlayer(NetworkConnectionToClient conn, NewPlayerMessager PM)
     {
-        Debug.Log("OnCreateRoomPlayer");
+        Debug.Log("0 | OnCreateRoomPlayer");
         NetworkPlayer NetPlayer = Instantiate(LocalPlayerPrefab, transform);// DM.transform); //KILL DISCORD
         NetPlayer.Name = PM.Name;
         NetPlayer.Team = PM.Team;
         RoomPlayer Player = Instantiate(roomPlayerPrefab, transform);
         bool addP = NetworkServer.AddPlayerForConnection(conn, NetPlayer.gameObject);
-        Debug.Log($"Player added {addP}");
-        
+        Debug.Log($"1 | Player added {addP}");
+
         NetworkServer.Spawn(Player.gameObject, conn);
         NetPlayer.SetUp(this, Player);
-        Player.name = "Dis hapenin " + UnityEngine.Random.Range(1,99);
-        if(NetPlayer.isLocalPlayer)//LocalPlayer == null)
+        Player.name = "Dis hapenin " + UnityEngine.Random.Range(1, 99);
+        if (NetPlayer.isLocalPlayer)//LocalPlayer == null)
             LocalPlayer = NetPlayer;
-        Debug.Log(NetPlayer);
-        Debug.Log(Player);
-        if(NetPlayer.isClientOnly)
+        Debug.Log($"2 | Player Exists{NetPlayer} | { Player}");
+        if (NetPlayer.isClientOnly)
+        {
             Players.Add(NetPlayer.netId, NetPlayer);
+            Debug.Log($"3 | add Player {NetPlayer.netId}");
+        }
 
         //Player.Team = PM.Team;
         //Player.TargetColor = PM.Color;

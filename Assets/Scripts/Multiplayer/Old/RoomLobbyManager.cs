@@ -176,9 +176,9 @@ public class RoomLobbyManager : MonoBehaviour , LevelSelectUI.LevelRequester
     public void OnClinetJoin(RoomPlayer player)
     {
         LocalPlayer = player;
+        Fade.LocalPlayer = player;
         if (LocalPlayer.isServer)
         {
-            Fade.LocalPlayer = player;
             LocalPlayer.CmdChangeLevel(PlayerPrefs.GetString("Level", ""));
         }
         GenerateLobby();

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 public class RoomPlayer : PlayerRepresentation
@@ -50,16 +51,28 @@ public class RoomPlayer : PlayerRepresentation
             Lobby.Players.Remove(this);        
         }
     }
-    
-    public override void OnStartLocalPlayerRepresentation()
-    {        
-    }
+
+    public override void OnStartLocalPlayerRepresentation() { }
+
     private void Start()
     {
+        Debug.Log("Start RoomPlayer");
         Debug.Log("RoomPlayer "+ PlayerNetID +" has Owner: " + (Owner != null));
         if (Owner == null)
         {
-            GameManager.GM.Players[PlayerNetID].Representation = this;
+            Debug.Log(GameManager.GM.Players.Count);
+            if (GameManager.GM.Players.TryGetValue(PlayerNetID, out NetworkPlayer NP))
+                NP.Representation = this;
+            else 
+            {
+                string str = "";
+                for (int i = 0; i < GameManager.GM.Players.Keys.Count; i++)
+                {
+                    str += GameManager.GM.Players.Keys.ToArray()[i] + " ";
+                }
+                //Assert.IsNotNull(NP,
+                Debug.Log($"key {PlayerNetID} not in Players Dict : {str}");
+            }
         }
         InputField.interactable = LocalPlayer;
         if(!LocalPlayer)
@@ -234,6 +247,7 @@ public class RoomPlayer : PlayerRepresentation
     }
     public void OnEditName(string name)
     {
+        Assert.IsNotNull(Owner);
         Debug.Log($"OnEditName \n{Owner} | {Owner?.name}");
         if (name != Name)
         {
@@ -366,9 +380,7 @@ public class RoomPlayer : PlayerRepresentation
         UpdateState(sender,netIds, Teams, names);
     }
     [TargetRpc]
-#pragma warning disable IDE0060 // Remove unused parameter
     public void UpdateState(NetworkConnection target, uint[] netIds, int[] Teams, string[] names)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
         for (int i = 0; i < netIds.Length; i++) 
         {
